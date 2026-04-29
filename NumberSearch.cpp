@@ -3,6 +3,7 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -17,46 +18,50 @@ set<string> visited;
 // 🧱 STEP 2 — Operations
 bool calculate(int a, int b, char op, int &res) {
 
-    if (op == '+') res = a + b;
-    else if (op == '-') res = a - b;
-    else if (op == '*') res = a * b;
+    if (op == '+'){
+        res = a + b;
+    }
+    else if (op == '-'){
+        res = a - b;
+    }
+    else if (op == '*'){
+         res = a * b;
+    }
     else if (op == '/') {
-        if (b == 0 || a % b != 0) return false;
+        if (b == 0 || a % b != 0){
+            return false;
+        }
         res = a / b;
     }
     else if (op == '%') {
-        if (b == 0) return false;
+        if (b == 0){
+            return false;
+        }
         res = a % b;
     }
     else if (op == '^') {
-        if (b < 0 || b > 10) return false;
-        res = 1;
-        for (int i = 0; i < b; i++) {
-            res *= a;
-            if (res > 10000 || res < -10000) return false;
-        }
+        res = pow(a,b);
+        
     }
-    else return false;
-
-    // limit values
-    if (res > 10000 || res < -10000) return false;
+    else{
+        return false;
+    }
 
     return true;
 }
 
-// 🧱 STEP 3 — Factorial
 bool fact(int x, int &res) {
-    if (x < 0 || x > 10) return false;
 
     res = 1;
-    for (int i = 1; i <= x; i++)
+    for (int i = 1; i <= x; i++){
         res *= i;
+    }
 
     return true;
 }
 
 // 🧱 STEP 4 — Build smaller array
-int buildNew(int oldVals[], string oldExpr[], int size,
+int buildNew(int oldVals[], string oldExpr[], int size,   // Pointers (Clear)
              int i, int j,
              int newVals[], string newExpr[]) {
 
@@ -93,7 +98,7 @@ void explore(int vals[], string exprs[], int size) {
 
     // avoid repeated states
     string key = encode(vals, size);
-    if (visited.count(key)) return;
+    if (visited.count(key)) return;   // Check if the element key exist in the set (if exists -> stops)
     visited.insert(key);
 
     // base case
