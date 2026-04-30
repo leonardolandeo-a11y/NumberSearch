@@ -1,21 +1,25 @@
 #include <iostream>
 #include <string>
-#include <set>
-#include <vector>
 #include <algorithm>
-#include <cmath>
 
 using namespace std;
 
 // GLOBAL DATA
-int nums[4];
-string expr[4];
-string results[101];
+string Resultados[101];
 
 // visited states
-set<string> visited;
-
+string Procesados[10000];
+int ElementosProcesados = 0;
 // 🧱 STEP 2 — Operations
+bool LinearSearch(string obj){
+    for (int i = 0; i<ElementosProcesados;i++){
+        if (Procesados[i] == obj){
+            return true;
+        }
+    }
+    return false;
+}
+
 bool calculate(int a, int b, char op, int &res) {
 
     if (op == '+'){
@@ -40,7 +44,16 @@ bool calculate(int a, int b, char op, int &res) {
         res = a % b;
     }
     else if (op == '^') {
-        res = pow(a,b);
+        if ( b > 10){
+            return false;
+        }
+
+        res = 1;
+        
+        for(int i = 0; i<b;i++){
+            res *=a;
+        }
+
         
     }
     else{
@@ -51,7 +64,7 @@ bool calculate(int a, int b, char op, int &res) {
 }
 
 bool fact(int x, int &res) {
-
+    if (x < 0 || x > 10) return false;
     res = 1;
     for (int i = 1; i <= x; i++){
         res *= i;
@@ -61,7 +74,7 @@ bool fact(int x, int &res) {
 }
 
 // 🧱 STEP 4 — Build smaller array
-int buildNew(int oldVals[], string oldExpr[], int size,   // Pointers (Clear)
+int buildNew(int* oldVals, string* oldExpr, int size,   // Pointers (Clear)
              int i, int j,
              int newVals[], string newExpr[]) {
 
@@ -79,34 +92,41 @@ int buildNew(int oldVals[], string oldExpr[], int size,   // Pointers (Clear)
 }
 
 // 🔥 SAFE encode (FIXED)
-string encode(int vals[], int size) {
-    vector<int> temp(vals, vals + size);  // safe copy
-
-    sort(temp.begin(), temp.end());
+string encode(int* vals, int size) {
+    int temp[size];
+    for (int i = 0; i< size; i++){
+        temp[i] = vals[i];
+    }
+    sort(temp, temp+size);
 
     string key = "";
-    for (int x : temp)
-        key += to_string(x) + ",";
-
+    for (int i = 0; i< size; i++){
+        key += to_string(temp[i]) + ",";
+    }
     return key;
 }
 
 // 🧱 STEP 5 — Recursive exploration
-void explore(int vals[], string exprs[], int size) {
+void explore(int* vals, string* expresion, int size) {
 
-    if (size <= 0 || size > 10) return;
+    if (size <= 0 || size > 10){
+        return;
+    }
 
     // avoid repeated states
     string key = encode(vals, size);
-    if (visited.count(key)) return;   // Check if the element key exist in the set (if exists -> stops)
-    visited.insert(key);
-
+    if (LinearSearch(key)){
+        return;
+    }
+    
+    Procesados[ElementosProcesados] = key;
+    ElementosProcesados += 1;
     // base case
     if (size == 1) {
         int v = vals[0];
 
-        if (v >= 1 && v <= 100 && results[v] == "") {
-            results[v] = exprs[0];
+        if (v >= 1 && v <= 100 && Resultados[v] == "") {
+            Resultados[v] = expresion[0];
         }
         return;
     }
@@ -118,7 +138,7 @@ void explore(int vals[], string exprs[], int size) {
             int newVals[10];
             string newExprs[10];
 
-            int newSize = buildNew(vals, exprs, size, i, j, newVals, newExprs);
+            int newSize = buildNew(vals, expresion, size, i, j, newVals, newExprs);
 
             char ops[] = {'+','-','*','/','%','^'};
 
@@ -127,13 +147,13 @@ void explore(int vals[], string exprs[], int size) {
 
                 if (calculate(vals[i], vals[j], ops[k], r)) {
                     newVals[newSize] = r;
-                    newExprs[newSize] = "(" + exprs[i] + ops[k] + exprs[j] + ")";
+                    newExprs[newSize] = "(" + expresion[i] + ops[k] + expresion[j] + ")";
                     explore(newVals, newExprs, newSize + 1);
                 }
 
                 if (calculate(vals[j], vals[i], ops[k], r)) {
                     newVals[newSize] = r;
-                    newExprs[newSize] = "(" + exprs[j] + ops[k] + exprs[i] + ")";
+                    newExprs[newSize] = "(" + expresion[j] + ops[k] + expresion[i] + ")";
                     explore(newVals, newExprs, newSize + 1);
                 }
             }
@@ -151,11 +171,11 @@ void explore(int vals[], string exprs[], int size) {
 
             for (int k = 0; k < size; k++) {
                 newVals[k] = vals[k];
-                newExprs[k] = exprs[k];
+                newExprs[k] = expresion[k];
             }
 
             newVals[i] = f;
-            newExprs[i] = "(" + exprs[i] + "!)";
+            newExprs[i] = "(" + expresion[i] + "!)";
 
             explore(newVals, newExprs, size);
         }
@@ -164,24 +184,29 @@ void explore(int vals[], string exprs[], int size) {
 
 // 🧱 STEP 6 — MAIN
 int main() {
+    int Nums[4];
+    string Expresion[4];
+    
+
+    int* ptrNums = Nums;
+    string* ptrExpresion = Expresion;
 
     for (int i = 1; i <= 100; i++)
-        results[i] = "";
+        Resultados[i] = "";
 
     cout << "Enter 4 numbers:\n";
 
     for (int i = 0; i < 4; i++) {
-        cin >> nums[i];
-        expr[i] = to_string(nums[i]);
+        cin >> ptrNums[i];
+        ptrExpresion[i] = to_string(ptrNums[i]);
     }
 
-    explore(nums, expr, 4);
-
-    cout << "\nResults:\n";
+    explore(ptrNums, ptrExpresion, 4);
+    cout << "\nResultados:\n";
 
     for (int i = 1; i <= 100; i++) {
-        if (results[i] != "")
-            cout << i << ": " << results[i] << endl;
+        if (Resultados[i] != "")
+            cout << i << ": " << Resultados[i] << endl;
         else
             cout << i << ": NOT POSSIBLE\n";
     }
