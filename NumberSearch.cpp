@@ -74,15 +74,13 @@ bool fact(int x, int &res) {
 }
 
 // 🧱 STEP 4 — Build smaller array
-int buildNew(int* oldVals, string* oldExpr, int size,   // Pointers (Clear)
-             int i, int j,
-             int newVals[], string newExpr[]) {
+int buildNew(int* oldVals, string* oldExpr, int size, int i, int j,int* newVals, string* newExpr) {
 
     int idx = 0;
 
     for (int k = 0; k < size; k++) {
-        if (k != i && k != j) {
-            newVals[idx] = oldVals[k];
+        if (k != i && k != j) {  // Avoid the positions where the old elements were before
+            newVals[idx] = oldVals[k];  
             newExpr[idx] = oldExpr[k];
             idx++;
         }
@@ -91,6 +89,17 @@ int buildNew(int* oldVals, string* oldExpr, int size,   // Pointers (Clear)
     return idx;
 }
 
+void    buildNewFact(bool* oldVals, int size, int i, int j,bool* newVals) {
+
+    int idx = 0;
+
+    for (int k = 0; k < size; k++) {
+        if (k != i && k != j) {  // Avoid the positions where the old elements were before
+            newVals[idx] = oldVals[k];  
+            idx++;
+        }
+    }
+}
 // 🔥 SAFE encode (FIXED)
 string encode(int* vals, int size) {
     int temp[size];
@@ -107,7 +116,7 @@ string encode(int* vals, int size) {
 }
 
 // 🧱 STEP 5 — Recursive exploration
-void explore(int* vals, string* expresion, int size) {
+void explore(int* vals, string* expresion, int size, bool* facto) {
 
     if (size <= 0 || size > 10){
         return;
@@ -121,11 +130,12 @@ void explore(int* vals, string* expresion, int size) {
     
     Procesados[ElementosProcesados] = key;
     ElementosProcesados += 1;
+
     // base case
     if (size == 1) {
         int v = vals[0];
 
-        if (v >= 1 && v <= 100 && Resultados[v] == "") {
+        if (v >= 1 && v <= 100 && Resultados[v] == "") {   // The first result that enters to this part
             Resultados[v] = expresion[0];
         }
         return;
@@ -137,8 +147,14 @@ void explore(int* vals, string* expresion, int size) {
 
             int newVals[10];
             string newExprs[10];
+            bool newFacto[10];
 
-            int newSize = buildNew(vals, expresion, size, i, j, newVals, newExprs);
+            bool* ptrnewFacto = newFacto;
+            int* ptrnewVals = newVals;
+            string* ptrnewExprs = newExprs;
+
+            int newSize = buildNew(vals, expresion, size, i, j, ptrnewVals, ptrnewExprs);
+            buildNewFact(facto,size, i,j,ptrnewFacto);
 
             char ops[] = {'+','-','*','/','%','^'};
 
@@ -147,14 +163,16 @@ void explore(int* vals, string* expresion, int size) {
 
                 if (calculate(vals[i], vals[j], ops[k], r)) {
                     newVals[newSize] = r;
-                    newExprs[newSize] = "(" + expresion[i] + ops[k] + expresion[j] + ")";
-                    explore(newVals, newExprs, newSize + 1);
+                    newFacto[newSize] = false;
+                    newExprs[newSize] = "(" + expresion[i] + ops[k] + expresion[j] + ")"; // Concatenation of the operations
+                    explore(newVals, newExprs, newSize + 1,newFacto);  // Because of that you lost 2 but win one
                 }
 
                 if (calculate(vals[j], vals[i], ops[k], r)) {
                     newVals[newSize] = r;
+                    newFacto[newSize] = false;
                     newExprs[newSize] = "(" + expresion[j] + ops[k] + expresion[i] + ")";
-                    explore(newVals, newExprs, newSize + 1);
+                    explore(newVals, newExprs, newSize + 1,newFacto);
                 }
             }
         }
@@ -163,21 +181,24 @@ void explore(int* vals, string* expresion, int size) {
     // factorial step (controlled)
     for (int i = 0; i < size; i++) {
         int f;
-
-        if (fact(vals[i], f) && f != vals[i] && f <= 1000) {
+             // First factorial of a element      Factorial      Avoid 1 and 2    Less than 1000
+        if (facto[i] == false &&fact(vals[i], f) && f != vals[i] && f <= 1000) {
 
             int newVals[10];
             string newExprs[10];
-
+            bool newUsedFact[10];
+            // Make a copy of the elements to dont destroy other branchs
             for (int k = 0; k < size; k++) {
                 newVals[k] = vals[k];
                 newExprs[k] = expresion[k];
+                newUsedFact[k] = facto[k];
             }
 
-            newVals[i] = f;
+            // Replace the number for its factorial
+            newVals[i] = f;   
             newExprs[i] = "(" + expresion[i] + "!)";
-
-            explore(newVals, newExprs, size);
+            newUsedFact[i] = true;
+            explore(newVals, newExprs, size,newUsedFact);
         }
     }
 }
@@ -186,11 +207,11 @@ void explore(int* vals, string* expresion, int size) {
 int main() {
     int Nums[4];
     string Expresion[4];
-    
+    bool usedFact[4] = {false, false, false, false};
 
     int* ptrNums = Nums;
     string* ptrExpresion = Expresion;
-
+    bool* ptrFactorial = usedFact;
     for (int i = 1; i <= 100; i++)
         Resultados[i] = "";
 
@@ -201,7 +222,7 @@ int main() {
         ptrExpresion[i] = to_string(ptrNums[i]);
     }
 
-    explore(ptrNums, ptrExpresion, 4);
+    explore(ptrNums, ptrExpresion, 4,ptrFactorial);
     cout << "\nResultados:\n";
 
     for (int i = 1; i <= 100; i++) {
