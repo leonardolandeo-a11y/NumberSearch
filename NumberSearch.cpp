@@ -75,17 +75,13 @@ int main() {
 
     --- Para cada uno creamos punteros ---
     */
-    int Nums[4];
-    string Expresion[4];
-    bool VerificacionFactorial[4] = {false, false, false, false};
+    int Nums[4]{};
+    string Expresion[4]{};
+    bool VerificacionFactorial[4]{};
 
     int* ptrNums = Nums;
     string* ptrExpresion = Expresion;
     bool* ptrVerficacionFactorial = VerificacionFactorial;
-    
-    for (int i = 1; i <= 100; i++){
-        Resultados[i] = "";
-    }
 
     cout << "Ingresa los 4 numeros:\n";
 

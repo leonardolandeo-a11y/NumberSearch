@@ -5,7 +5,7 @@ Resultados -> Guardaremos las combinaciones que hicimos para formar un numero. e
 Procesados -> Guardaremos las keys de verificacion (Nos permiten evitar permutaciones que dan combinaciones iguales)
 ElementosProcesados ->  Indicamos cuantas keys estamos guardando dentro de la lista.
 */
-string Resultados[101];
+string Resultados[101]{};
 string Procesados[10000];
 int ElementosProcesados = 0;
 
