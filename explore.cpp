@@ -2,14 +2,7 @@
 
 
 void explore(int* ArrayValores, string* ArrayExpresion, int Tamanio, bool* facto) {
-    /*
-    Evitamos tamaños fuera del rango
-    */
-    if (Tamanio <= 0 || Tamanio > 10){
-        return;
-    }
 
-    
     /*
     key:
         - viene de VerificadorEvitarPermutaciones
@@ -66,9 +59,9 @@ void explore(int* ArrayValores, string* ArrayExpresion, int Tamanio, bool* facto
             
             --- Cada uno tiene su propio puntero ---
             */
-            int NuevoArrayValores[10];
-            string NuevaExpresion[10];
-            bool NuevoVerificacionFactorial[10];
+            int NuevoArrayValores[4];
+            string NuevaExpresion[4];
+            bool NuevoVerificacionFactorial[4];
 
             bool* ptrNuevoVerificacionFactorial = NuevoVerificacionFactorial;
             int* ptrNuevoArrayValores = NuevoArrayValores;
@@ -137,9 +130,9 @@ void explore(int* ArrayValores, string* ArrayExpresion, int Tamanio, bool* facto
             /*
             Creamos una copia de cada uno de los arrays originales para no dañarlos
             */
-            int NuevoArrayValoresFactorial[10];
-            string NuevaExpresionFactorial[10];
-            bool NuevoVerificacionFactorial[10];
+            int NuevoArrayValoresFactorial[4];
+            string NuevaExpresionFactorial[4];
+            bool NuevoVerificacionFactorial[4];
             for (int k = 0; k < Tamanio; k++) {
                 NuevoArrayValoresFactorial[k] = ArrayValores[k];
                 NuevaExpresionFactorial[k] = ArrayExpresion[k];

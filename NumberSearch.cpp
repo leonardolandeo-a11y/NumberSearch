@@ -90,7 +90,12 @@ int main() {
     cout << "Ingresa los 4 numeros:\n";
 
     for (int i = 0; i < 4; i++) {
+        cout << i+1 << "º num: ";
         cin >> ptrNums[i];
+        while (ptrNums[i]<1 || ptrNums[i]>9) {
+            cout << "Invalido. " << i+1 << "º num: ";
+            cin >> ptrNums[i];
+        }
         ptrExpresion[i] = to_string(ptrNums[i]);
     }
 
